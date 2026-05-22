@@ -1,0 +1,53 @@
+:root {
+  /* Primary Colors */
+  --primary-dark: #0A0E27;
+  --primary-darker: #050810;
+  --primary-blue: #0052CC;
+  --primary-blue-dark: #003DA5;
+  --primary-blue-light: #0066FF;
+
+  /* Secondary Colors */
+  --secondary-cyan: #00D9FF;
+  --secondary-purple: #9D4EDD;
+  --secondary-indigo: #5A189A;
+  
+  /* Neutral Colors */
+  --white: #F5F7FA;
+  --white-pure: #FFFFFF;
+  --white-soft: #F8FAFC;
+  --white-glass: rgba(255, 255, 255, 0.95);
+  --white-dim: rgba(255, 255, 255, 0.7);
+  --gray-light: #E8ECEF;
+  --gray-medium: #A8B2BA;
+  --gray-dark: #6B7280;
+  
+  /* Accents */
+  --accent-success: #10B981;
+  --accent-warning: #F59E0B;
+  --accent-danger: #EF4444;
+  
+  /* Glass Effects */
+  --glass-bg: rgba(10, 14, 39, 0.8);
+  --glass-border: rgba(0, 210, 255, 0.15);
+  --glass-bg-light: rgba(80, 82, 204, 0.1);
+  --glass-white: rgba(245, 247, 250, 0.08);
+  --glass-white-light: rgba(255, 255, 255, 0.15);
+  --glass-white-medium: rgba(255, 255, 255, 0.25);
+  --glass-white-strong: rgba(255, 255, 255, 0.4);
+  
+  /* Glows & Effects */
+  --glow-primary: 0 0 20px rgba(0, 82, 204, 0.4);
+  --glow-secondary: 0 0 30px rgba(0, 217, 255, 0.3);
+  --glow-strong: 0 0 40px rgba(157, 78, 221, 0.4);
+  --glow-white: 0 0 25px rgba(255, 255, 255, 0.3);
+  --glow-white-soft: 0 0 15px rgba(255, 255, 255, 0.2);
+  --shadow-sm: 0 4px 6px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 10px 25px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 20px 50px rgba(0, 0, 0, 0.5);
+  --shadow-white: 0 4px 15px rgba(255, 255, 255, 0.1);
+  
+  /* Transitions */
+  --transition-fast: 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-normal: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}

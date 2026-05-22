@@ -1,0 +1,187 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ETUDIANT
+  RESPONSABLE
+  ADMIN
+}
+
+enum Filiere {
+  DI
+  CI
+  AGAC
+  FC
+}
+
+enum PostStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum ReactionType {
+  LIKE
+  HEART
+  CLAP
+}
+
+enum PollStatus {
+  ACTIVE
+  CLOSED
+}
+
+model User {
+  id        String   @id @default(uuid())
+  nom       String
+  prenom    String
+  email     String   @unique
+  password  String
+  role      Role     @default(ETUDIANT)
+  filiere   Filiere?
+  classId   String?
+  class     Class?   @relation(fields: [classId], references: [id])
+  createdAt DateTime @default(now())
+
+  posts           Post[]
+  reactions       Reaction[]
+  comments        Comment[]
+  pollOptions     PollOption[]
+  votes           Vote[]
+  sentMessages    Message[] @relation("SentMessages")
+  receivedMessages Message[] @relation("ReceivedMessages")
+
+  @@index([email])
+  @@index([classId])
+  @@index([filiere])
+}
+
+model Class {
+  id        String   @id @default(uuid())
+  name      String
+  year      String
+  users     User[]
+  posts     Post[]
+  polls     Poll[]
+  messages  Message[]
+  createdAt DateTime @default(now())
+
+  @@index([name])
+}
+
+model Post {
+  id          String     @id @default(uuid())
+  title       String
+  content     String     @db.Text
+  imageUrl    String?
+  status      PostStatus @default(PENDING)
+  authorId    String
+  author      User       @relation(fields: [authorId], references: [id])
+  classId     String?
+  class       Class?     @relation(fields: [classId], references: [id])
+  feedback    String?    @db.Text
+  createdAt   DateTime   @default(now())
+
+  reactions  Reaction[]
+  comments   Comment[]
+
+  @@index([authorId])
+  @@index([status])
+  @@index([classId])
+}
+
+model Reaction {
+  id        String       @id @default(uuid())
+  userId    String
+  postId    String
+  type      ReactionType
+  user      User         @relation(fields: [userId], references: [id])
+  post      Post         @relation(fields: [postId], references: [id])
+  createdAt DateTime     @default(now())
+
+  @@unique([userId, postId, type])
+  @@index([userId])
+  @@index([postId])
+}
+
+model Comment {
+  id        String   @id @default(uuid())
+  content   String   @db.Text
+  userId    String
+  postId    String
+  user      User     @relation(fields: [userId], references: [id])
+  post      Post     @relation(fields: [postId], references: [id])
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([postId])
+}
+
+model Poll {
+  id          String      @id @default(uuid())
+  title       String
+  description String?     @db.Text
+  classId     String
+  class       Class       @relation(fields: [classId], references: [id])
+  status      PollStatus  @default(ACTIVE)
+  deadline    DateTime
+  createdAt   DateTime    @default(now())
+
+  options PollOption[]
+  votes   Vote[]
+
+  @@index([classId])
+  @@index([status])
+}
+
+model PollOption {
+  id          String   @id @default(uuid())
+  pollId      String
+  candidateId String
+  poll        Poll     @relation(fields: [pollId], references: [id], onDelete: Cascade)
+  candidate   User     @relation(fields: [candidateId], references: [id])
+  votes       Vote[]
+  createdAt   DateTime @default(now())
+
+  @@unique([pollId, candidateId])
+  @@index([pollId])
+  @@index([candidateId])
+}
+
+model Vote {
+  id        String   @id @default(uuid())
+  pollId    String
+  optionId  String
+  voterId   String
+  poll      Poll       @relation(fields: [pollId], references: [id], onDelete: Cascade)
+  option    PollOption @relation(fields: [optionId], references: [id], onDelete: Cascade)
+  voter     User       @relation(fields: [voterId], references: [id])
+  createdAt DateTime @default(now())
+
+  @@unique([pollId, voterId])
+  @@index([pollId])
+  @@index([voterId])
+}
+
+model Message {
+  id         String    @id @default(uuid())
+  content    String    @db.Text
+  senderId   String
+  receiverId String
+  classId    String?
+  sender     User      @relation("SentMessages", fields: [senderId], references: [id])
+  receiver   User      @relation("ReceivedMessages", fields: [receiverId], references: [id])
+  class      Class?    @relation(fields: [classId], references: [id])
+  readAt     DateTime?
+  createdAt  DateTime  @default(now())
+
+  @@index([senderId])
+  @@index([receiverId])
+  @@index([classId])
+}
