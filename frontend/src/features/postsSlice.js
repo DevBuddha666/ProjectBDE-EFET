@@ -25,6 +25,18 @@ export const fetchPendingPosts = createAsyncThunk(
   }
 );
 
+export const fetchMyPosts = createAsyncThunk(
+  'posts/fetchMyPosts',
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await postService.getMyPosts();
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to fetch my posts');
+    }
+  }
+);
+
 export const createPost = createAsyncThunk(
   'posts/createPost',
   async (postData, { rejectWithValue }) => {
@@ -90,6 +102,7 @@ const postsSlice = createSlice({
   initialState: {
     posts: [],
     pendingPosts: [],
+    myPosts: [],
     loading: false,
     error: null
   },
@@ -115,8 +128,20 @@ const postsSlice = createSlice({
       .addCase(fetchPendingPosts.fulfilled, (state, action) => {
         state.pendingPosts = action.payload;
       })
+      .addCase(fetchMyPosts.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchMyPosts.fulfilled, (state, action) => {
+        state.loading = false;
+        state.myPosts = action.payload;
+      })
+      .addCase(fetchMyPosts.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
       .addCase(createPost.fulfilled, (state, action) => {
-        state.pendingPosts.unshift(action.payload);
+        state.myPosts.unshift(action.payload);
       })
       .addCase(approvePost.fulfilled, (state, action) => {
         state.pendingPosts = state.pendingPosts.filter(p => p.id !== action.payload.id);

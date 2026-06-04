@@ -5,6 +5,7 @@ const roleMiddleware = require('../middlewares/roleMiddleware');
 const {
   getAllPosts,
   getPendingPosts,
+  getMyPosts,
   getPostById,
   createPost,
   approvePost,
@@ -15,6 +16,7 @@ const {
 } = require('../controllers/postController');
 
 router.get('/', authMiddleware, getAllPosts);
+router.get('/my-posts', authMiddleware, getMyPosts);
 router.get('/pending', authMiddleware, roleMiddleware('ADMIN'), getPendingPosts);
 router.get('/:id', authMiddleware, getPostById);
 router.post('/', authMiddleware, roleMiddleware('RESPONSABLE', 'ADMIN'), createPost);

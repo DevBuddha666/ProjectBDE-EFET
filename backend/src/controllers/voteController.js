@@ -75,9 +75,28 @@ const createPoll = async (req, res) => {
   try {
     const { title, description, candidateIds, deadline, filiere } = req.body;
 
-    if (!title || !candidateIds || candidateIds.length === 0 || !deadline) {
-      return res.status(400).json({ message: 'Missing required fields' });
+    console.log('===== CREATE POLL REQUEST =====');
+    console.log('Full request body:', JSON.stringify(req.body, null, 2));
+    console.log('title:', title, '| type:', typeof title);
+    console.log('candidateIds:', candidateIds, '| type:', typeof candidateIds, '| length:', candidateIds?.length);
+    console.log('deadline:', deadline, '| type:', typeof deadline);
+    console.log('filiere:', filiere, '| type:', typeof filiere);
+    console.log('description:', description, '| type:', typeof description);
+
+    if (!title) {
+      console.error('❌ FAILED: Missing title');
+      return res.status(400).json({ message: 'Missing required field: title' });
     }
+    if (!candidateIds || !Array.isArray(candidateIds) || candidateIds.length === 0) {
+      console.error('❌ FAILED: Missing or invalid candidateIds', { candidateIds, isArray: Array.isArray(candidateIds), length: candidateIds?.length });
+      return res.status(400).json({ message: 'Missing required field: candidateIds (must be non-empty array)' });
+    }
+    if (!deadline) {
+      console.error('❌ FAILED: Missing deadline');
+      return res.status(400).json({ message: 'Missing required field: deadline' });
+    }
+
+    console.log('✅ Validation passed, creating poll...');
 
     const poll = await prisma.poll.create({
       data: {
@@ -103,8 +122,9 @@ const createPoll = async (req, res) => {
 
     res.status(201).json(poll);
   } catch (error) {
-    console.error('Create poll error:', error);
-    res.status(500).json({ message: 'Internal server error' });
+    console.error('❌ CREATE POLL ERROR:', error.message);
+    console.error('Stack:', error.stack);
+    res.status(500).json({ message: 'Internal server error', error: error.message });
   }
 };
 

@@ -78,16 +78,30 @@ const DashboardAdmin = () => {
 
   const handleCreatePoll = (e) => {
     e.preventDefault();
-    if (!newPoll.deadline) return;
+    if (!newPoll.title || !newPoll.filiere || newPoll.candidateIds.length === 0 || !newPoll.deadline) {
+      alert('Veuillez remplir tous les champs requis:\n- Titre\n- Filière\n- Au moins un candidat\n- Date limite');
+      return;
+    }
 
     const formattedPoll = {
       ...newPoll,
       deadline: new Date(newPoll.deadline).toISOString()
     };
 
-    dispatch(createPoll(formattedPoll)).then(() => {
-      setShowCreatePoll(false);
-      setNewPoll({ title: '', description: '', filiere: '', candidateIds: [], deadline: '' });
+    console.log('===== FRONTEND: Sending poll data =====');
+    console.log('Formatted Poll:', JSON.stringify(formattedPoll, null, 2));
+    console.log('candidateIds:', formattedPoll.candidateIds, 'Type:', typeof formattedPoll.candidateIds);
+
+    dispatch(createPoll(formattedPoll)).then((action) => {
+      if (action.type === 'votes/createPoll/fulfilled') {
+        setShowCreatePoll(false);
+        setNewPoll({ title: '', description: '', filiere: '', candidateIds: [], deadline: '' });
+      } else if (action.type === 'votes/createPoll/rejected') {
+        alert('Erreur lors de la création du vote:\n' + (action.payload || 'Erreur inconnue'));
+      }
+    }).catch((error) => {
+      console.error('Error creating poll:', error);
+      alert('Erreur lors de la création du vote');
     });
   };
 

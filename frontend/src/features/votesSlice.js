@@ -107,14 +107,23 @@ const votesSlice = createSlice({
       .addCase(createPoll.fulfilled, (state, action) => {
         state.polls.unshift(action.payload);
       })
+      .addCase(createPoll.rejected, (state, action) => {
+        state.error = action.payload;
+      })
       .addCase(closePoll.fulfilled, (state, action) => {
         const index = state.polls.findIndex(p => p.id === action.payload.id);
         if (index >= 0) {
           state.polls[index] = action.payload;
         }
       })
+      .addCase(closePoll.rejected, (state, action) => {
+        state.error = action.payload;
+      })
       .addCase(deletePoll.fulfilled, (state, action) => {
         state.polls = state.polls.filter(p => p.id !== action.payload);
+      })
+      .addCase(deletePoll.rejected, (state, action) => {
+        state.error = action.payload;
       })
       .addCase(vote.fulfilled, (state, action) => {
         const poll = state.polls.find(p => p.id === action.payload.pollId);

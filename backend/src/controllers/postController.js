@@ -42,6 +42,30 @@ const getPendingPosts = async (req, res) => {
   }
 };
 
+const getMyPosts = async (req, res) => {
+  try {
+    const authorId = req.user.id;
+    const posts = await prisma.post.findMany({
+      where: { authorId },
+      include: {
+        author: { select: { id: true, nom: true, prenom: true, role: true } },
+        reactions: true,
+        comments: {
+          include: { user: { select: { id: true, nom: true, prenom: true } } },
+          orderBy: { createdAt: 'desc' }
+        },
+        class: true
+      },
+      orderBy: { createdAt: 'desc' }
+    });
+
+    res.json(posts);
+  } catch (error) {
+    console.error('Get my posts error:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
 const getPostById = async (req, res) => {
   try {
     const { id } = req.params;
@@ -240,6 +264,7 @@ const addComment = async (req, res) => {
 module.exports = {
   getAllPosts,
   getPendingPosts,
+  getMyPosts,
   getPostById,
   createPost,
   approvePost,

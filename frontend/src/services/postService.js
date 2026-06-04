@@ -2,6 +2,7 @@ import api from './api';
 
 export const getPosts = () => api.get('/posts');
 export const getPendingPosts = () => api.get('/posts/pending');
+export const getMyPosts = () => api.get('/posts/my-posts');
 export const getPostById = (id) => api.get(`/posts/${id}`);
 export const createPost = (data) => api.post('/posts', data);
 export const approvePost = (id, feedback) => api.patch(`/posts/${id}/approve`, { feedback });

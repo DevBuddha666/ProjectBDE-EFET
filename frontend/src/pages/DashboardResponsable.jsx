@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchPosts, fetchPendingPosts, createPost } from '../features/postsSlice';
+import { fetchPosts, fetchPendingPosts, fetchMyPosts, createPost } from '../features/postsSlice';
 import { fetchPolls } from '../features/votesSlice';
 import { fetchMessages, sendMessage } from '../features/messagesSlice';
 import Header from '../components/Header';
@@ -12,7 +12,7 @@ import MessageCard from '../components/MessageCard';
 const DashboardResponsable = () => {
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.auth);
-  const { posts, pendingPosts, loading: postsLoading } = useSelector((state) => state.posts);
+  const { posts, pendingPosts, myPosts, loading: postsLoading } = useSelector((state) => state.posts);
   const { polls, loading: pollsLoading } = useSelector((state) => state.votes);
   const { messages, currentThread } = useSelector((state) => state.messages);
   const [activeTab, setActiveTab] = useState('posts');
@@ -24,6 +24,7 @@ const DashboardResponsable = () => {
   useEffect(() => {
     dispatch(fetchPosts());
     dispatch(fetchPendingPosts());
+    dispatch(fetchMyPosts());
     dispatch(fetchPolls(user?.classId));
     dispatch(fetchMessages());
   }, [dispatch, user?.classId]);
@@ -74,14 +75,14 @@ const DashboardResponsable = () => {
               Publications
             </button>
             <button
-              onClick={() => setActiveTab('pending')}
+              onClick={() => setActiveTab('myPosts')}
               className="neon-button"
               style={{
-                background: activeTab === 'pending' ? 'var(--blue-500)' : 'transparent',
-                border: activeTab === 'pending' ? '1px solid var(--blue-400)' : '1px solid var(--blue-500)'
+                background: activeTab === 'myPosts' ? 'var(--blue-500)' : 'transparent',
+                border: activeTab === 'myPosts' ? '1px solid var(--blue-400)' : '1px solid var(--blue-500)'
               }}
             >
-              En attente ({pendingPosts.length})
+              Mes Publications ({myPosts.length})
             </button>
             <button
               onClick={() => setActiveTab('votes')}
@@ -167,6 +168,48 @@ const DashboardResponsable = () => {
               pendingPosts.map((post) => (
                 <PostCard key={post.id} post={post} canReact={false} canComment={false} />
               ))
+            )}
+          </div>
+        )}
+
+        {activeTab === 'myPosts' && (
+          <div className="glass-card fade-in" style={{ padding: '24px', marginBottom: '24px' }}>
+            <h2 style={{ color: 'var(--accent)', marginBottom: '16px' }}>Mes Publications</h2>
+            {myPosts.length === 0 ? (
+              <p style={{ color: 'var(--blue-300)' }}>Vous n'avez pas encore soumis de publication</p>
+            ) : (
+              <div style={{ maxHeight: '500px', overflowY: 'auto' }} className="scrollbar-thin">
+                {myPosts.map((post) => (
+                  <div key={post.id} style={{ marginBottom: '16px', padding: '16px', background: 'rgba(13, 59, 110, 0.3)', borderRadius: '8px', border: `1px solid ${post.status === 'PENDING' ? 'var(--yellow-500)' : post.status === 'APPROVED' ? 'var(--green-500)' : 'var(--red-500)'}` }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '8px' }}>
+                      <div>
+                        <h3 style={{ color: 'var(--white)', margin: '0 0 4px 0' }}>{post.title}</h3>
+                        <p style={{ color: 'var(--blue-300)', margin: '0', fontSize: '0.875rem' }}>
+                          {new Date(post.createdAt).toLocaleDateString('fr-FR')}
+                        </p>
+                      </div>
+                      <span style={{
+                        padding: '4px 12px',
+                        borderRadius: '4px',
+                        fontSize: '0.75rem',
+                        fontWeight: 'bold',
+                        background: post.status === 'PENDING' ? 'rgba(255, 193, 7, 0.2)' : post.status === 'APPROVED' ? 'rgba(76, 175, 80, 0.2)' : 'rgba(244, 67, 54, 0.2)',
+                        color: post.status === 'PENDING' ? 'var(--yellow-500)' : post.status === 'APPROVED' ? 'var(--green-500)' : 'var(--red-500)'
+                      }}>
+                        {post.status === 'PENDING' ? 'En attente' : post.status === 'APPROVED' ? 'Approuvé' : 'Rejeté'}
+                      </span>
+                    </div>
+                    <p style={{ color: 'var(--white)', margin: '0 0 8px 0' }}>{post.content.substring(0, 150)}...</p>
+                    {post.feedback && (
+                      <div style={{ padding: '8px', background: 'rgba(0, 0, 0, 0.3)', borderRadius: '4px', marginTop: '8px' }}>
+                        <p style={{ color: 'var(--yellow-500)', margin: '0', fontSize: '0.875rem' }}>
+                          <strong>Commentaire admin:</strong> {post.feedback}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
             )}
           </div>
         )}
